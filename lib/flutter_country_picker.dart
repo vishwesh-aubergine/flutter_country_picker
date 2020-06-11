@@ -225,40 +225,42 @@ class _CountryPickerDialogState extends State<_CountryPickerDialog> {
       child: Dialog(
         child: Column(
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
-                  child: new TextField(
-                    decoration: new InputDecoration(
-                      hintText:
-                          MaterialLocalizations.of(context).searchFieldLabel,
-                      prefixIcon: Icon(Icons.search),
-                      suffixIcon: filter == null || filter == ""
-                          ? Container(
-                              height: 0.0,
-                              width: 0.0,
-                            )
-                          : InkWell(
-                              child: Icon(Icons.clear),
-                              onTap: () {
-                                controller.clear();
-                              },
-                            ),
+            Expanded(
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
+                    child: new TextField(
+                      decoration: new InputDecoration(
+                        hintText:
+                            MaterialLocalizations.of(context).searchFieldLabel,
+                        prefixIcon: Icon(Icons.search),
+                        suffixIcon: filter == null || filter == ""
+                            ? Container(
+                                height: 0.0,
+                                width: 0.0,
+                              )
+                            : InkWell(
+                                child: Icon(Icons.clear),
+                                onTap: () {
+                                  controller.clear();
+                                },
+                              ),
+                      ),
+                      controller: controller,
                     ),
-                    controller: controller,
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                )
-              ],
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
             Expanded(
               child: Scrollbar(
