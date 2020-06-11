@@ -26,7 +26,7 @@ Future<List<Country>> _fetchLocalizedCountryNames() async {
     renamed.add(country.copyWith(name: result[country.isoCode]));
   }
   renamed.sort(
-      (Country a, Country b) => removeDiacritics(a.name).compareTo(b.name));
+          (Country a, Country b) => removeDiacritics(a.name).compareTo(b.name));
 
   return renamed;
 }
@@ -48,6 +48,7 @@ class CountryPicker extends StatelessWidget {
     this.dialingCodeTextStyle,
     this.currencyTextStyle,
     this.currencyISOTextStyle,
+    this.cancel
   }) : super(key: key);
 
   final Country selectedCountry;
@@ -62,6 +63,8 @@ class CountryPicker extends StatelessWidget {
   final TextStyle dialingCodeTextStyle;
   final TextStyle currencyTextStyle;
   final TextStyle currencyISOTextStyle;
+  final Widget cancel;
+
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +75,16 @@ class CountryPicker extends StatelessWidget {
       displayCountry =
           Country.findByIsoCode(Localizations.localeOf(context).countryCode);
     }
+    if(cancel!=null){
+
+    }
 
     return dense
-        ? _renderDenseDisplay(context, displayCountry)
-        : _renderDefaultDisplay(context, displayCountry);
+        ? _renderDenseDisplay(context, displayCountry,cancel)
+        : _renderDefaultDisplay(context, displayCountry,cancel);
   }
 
-  _renderDefaultDisplay(BuildContext context, Country displayCountry) {
+  _renderDefaultDisplay(BuildContext context, Country displayCountry,Widget cancel) {
     return InkWell(
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -87,35 +93,35 @@ class CountryPicker extends StatelessWidget {
           if (showFlag)
             Container(
                 child: Image.asset(
-              displayCountry.asset,
-              package: "flutter_country_picker",
-              height: 32.0,
-              fit: BoxFit.fitWidth,
-            )),
+                  displayCountry.asset,
+                  package: "flutter_country_picker",
+                  height: 32.0,
+                  fit: BoxFit.fitWidth,
+                )),
           if (showName)
             Container(
                 child: Text(
-              " ${displayCountry.name}",
-              style: nameTextStyle,
-            )),
+                  " ${displayCountry.name}",
+                  style: nameTextStyle,
+                )),
           if (showDialingCode)
             Container(
                 child: Text(
-              " (+${displayCountry.dialingCode})",
-              style: dialingCodeTextStyle,
-            )),
+                  " (+${displayCountry.dialingCode})",
+                  style: dialingCodeTextStyle,
+                )),
           if (showCurrency)
             Container(
                 child: Text(
-              " ${displayCountry.currency}",
-              style: currencyTextStyle,
-            )),
+                  " ${displayCountry.currency}",
+                  style: currencyTextStyle,
+                )),
           if (showCurrencyISO)
             Container(
                 child: Text(
-              " ${displayCountry.currencyISO}",
-              style: currencyISOTextStyle,
-            )),
+                  " ${displayCountry.currencyISO}",
+                  style: currencyISOTextStyle,
+                )),
           Icon(Icons.arrow_drop_down,
               color: Theme.of(context).brightness == Brightness.light
                   ? Colors.grey.shade700
@@ -123,12 +129,14 @@ class CountryPicker extends StatelessWidget {
         ],
       ),
       onTap: () {
-        _selectCountry(context, displayCountry);
+        _selectCountry(context, displayCountry,cancel);
       },
     );
   }
+  Widget SetWidget(Widget ){
 
-  _renderDenseDisplay(BuildContext context, Country displayCountry) {
+  }
+  _renderDenseDisplay(BuildContext context, Country displayCountry,Widget cancel) {
     return InkWell(
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -147,16 +155,17 @@ class CountryPicker extends StatelessWidget {
         ],
       ),
       onTap: () {
-        _selectCountry(context, displayCountry);
+        _selectCountry(context, displayCountry,cancel);
       },
     );
   }
 
   Future<Null> _selectCountry(
-      BuildContext context, Country defaultCountry) async {
+      BuildContext context, Country defaultCountry,Widget cancel) async {
     final Country picked = await showCountryPicker(
-      context: context,
-      defaultCountry: defaultCountry,
+        context: context,
+        defaultCountry: defaultCountry,
+        cancel: cancel
     );
 
     if (picked != null && picked != selectedCountry) onChanged(picked);
@@ -168,21 +177,26 @@ class CountryPicker extends StatelessWidget {
 Future<Country> showCountryPicker({
   BuildContext context,
   Country defaultCountry,
+  Widget cancel
 }) async {
   assert(Country.findByIsoCode(defaultCountry.isoCode) != null);
 
   return await showDialog<Country>(
     context: context,
     builder: (BuildContext context) => _CountryPickerDialog(
-      defaultCountry: defaultCountry,
+        defaultCountry: defaultCountry,
+        cancel:cancel
     ),
   );
 }
 
 class _CountryPickerDialog extends StatefulWidget {
+  final Widget cancel;
+
   const _CountryPickerDialog({
     Key key,
     Country defaultCountry,
+    this.cancel,
   }) : super(key: key);
 
   @override
@@ -193,6 +207,7 @@ class _CountryPickerDialogState extends State<_CountryPickerDialog> {
   TextEditingController controller = new TextEditingController();
   String filter;
   List<Country> countries;
+
 
   @override
   void initState() {
@@ -226,43 +241,51 @@ class _CountryPickerDialogState extends State<_CountryPickerDialog> {
         child: Column(
           children: <Widget>[
             Expanded(
+              flex: 1,
               child: Row(
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.only(top: 10.0, left: 20.0, right: 20.0),
-                    child: new TextField(
-                      decoration: new InputDecoration(
-                        hintText:
-                            MaterialLocalizations.of(context).searchFieldLabel,
-                        prefixIcon: Icon(Icons.search),
-                        suffixIcon: filter == null || filter == ""
-                            ? Container(
-                                height: 0.0,
-                                width: 0.0,
-                              )
-                            : InkWell(
-                                child: Icon(Icons.clear),
-                                onTap: () {
-                                  controller.clear();
-                                },
-                              ),
+                  Expanded(
+                    flex: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0),
+                      child: TextField(
+                        decoration: new InputDecoration(
+                          hintText: MaterialLocalizations.of(context)
+                              .searchFieldLabel,
+                          prefixIcon: Icon(Icons.search),
+                          suffixIcon: filter == null || filter == ""
+                              ? Container(
+                            height: 0.0,
+                            width: 0.0,
+                          )
+                              : InkWell(
+                            child: Icon(Icons.clear),
+                            onTap: () {
+                              controller.clear();
+                            },
+                          ),
+                        ),
+                        controller: controller,
                       ),
-                      controller: controller,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10.0, right: 10),
+                      child: GestureDetector(
+                        child: this.widget.cancel,
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
                     ),
                   )
                 ],
               ),
             ),
             Expanded(
+              flex: 8,
               child: Scrollbar(
                 child: ListView.builder(
                   itemCount: countries.length,
